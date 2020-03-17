@@ -80,6 +80,9 @@ class erLhcoreClassDepartament{
 	   			'off_op_exec' => new ezcInputFormDefinitionElement(
 	   					ezcInputFormDefinitionElement::OPTIONAL, 'boolean'
 	   			),
+                'ru_on_transfer' => new ezcInputFormDefinitionElement(
+	   					ezcInputFormDefinitionElement::OPTIONAL, 'boolean'
+	   			),
                 'nc_cb_execute' => new ezcInputFormDefinitionElement(
 	   					ezcInputFormDefinitionElement::OPTIONAL, 'boolean'
 	   			),
@@ -158,6 +161,15 @@ class erLhcoreClassDepartament{
                 ),
                 'survey_id' => new ezcInputFormDefinitionElement(
                     ezcInputFormDefinitionElement::OPTIONAL, 'int', array('min_range' => 1)
+                ),
+                'attr_int_1' => new ezcInputFormDefinitionElement(
+                    ezcInputFormDefinitionElement::OPTIONAL, 'int', array('min_range' => 0)
+                ),
+                'attr_int_2' => new ezcInputFormDefinitionElement(
+                    ezcInputFormDefinitionElement::OPTIONAL, 'int', array('min_range' => 0)
+                ),
+                'attr_int_3' => new ezcInputFormDefinitionElement(
+                    ezcInputFormDefinitionElement::OPTIONAL, 'int', array('min_range' => 0)
                 )
         );
 
@@ -276,6 +288,13 @@ class erLhcoreClassDepartament{
 		   	} else {
                 $botConfiguration['off_op_exec'] = 0;
 		   	}
+		   	
+		   	if ( $form->hasValidData( 'ru_on_transfer' ) && $form->ru_on_transfer == true )
+		   	{
+		   		$botConfiguration['ru_on_transfer'] = 1;
+		   	} else {
+                $botConfiguration['ru_on_transfer'] = 0;
+		   	}
 
 		   	if ( $form->hasValidData( 'na_cb_execute' ) && $form->na_cb_execute == true )
 		   	{
@@ -302,6 +321,21 @@ class erLhcoreClassDepartament{
 	   		$department->pending_max = $form->pending_max;
 	   	} else {
 	   		$department->pending_max = 0;
+	   	}
+
+	   	if ( $form->hasValidData( 'attr_int_1' ) )
+	   	{
+	   		$department->attr_int_1 = $form->attr_int_1;
+	   	}
+
+	   	if ( $form->hasValidData( 'attr_int_2' ) )
+	   	{
+	   		$department->attr_int_2 = $form->attr_int_2;
+	   	}
+
+	   	if ( $form->hasValidData( 'attr_int_3' ) )
+	   	{
+	   		$department->attr_int_3 = $form->attr_int_3;
 	   	}
 	   	
 	   	if ( $form->hasValidData( 'Email' ) ) {	   	

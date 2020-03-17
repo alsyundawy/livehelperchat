@@ -21,7 +21,7 @@ class erLhcoreClassChatWorkflow {
             $chat->last_msg_id = $msg->id;
         }
 
-        $chat->updateThis();
+        $chat->updateThis(array('update' => array('last_msg_id')));
     }
 
     /**
@@ -33,6 +33,9 @@ class erLhcoreClassChatWorkflow {
         $chat->transfer_timeout_ts = time();
 
         if ($chat->department !== false && ($departmentTransfer = $chat->department->department_transfer) !== false) {
+
+            $botConfiguration = $chat->department->bot_configuration_array;
+
             $chat->dep_id = $departmentTransfer->id;
 
             $msg = new erLhcoreClassModelmsg();
@@ -66,20 +69,30 @@ class erLhcoreClassChatWorkflow {
                 $chat->transfer_timeout_ac = $departmentTransfer->transfer_timeout;
             }
 
-            if ($chat->department->nc_cb_execute == 1) {
-                $chat->nc_cb_executed = 0;
+            // Reset user on chat transfer to other department if required
+            if (isset($botConfiguration['ru_on_transfer']) && $botConfiguration['ru_on_transfer'] == 1 && $chat->user_id > 0) {
+
+                if ($chat->user_id > 0) {
+                    erLhcoreClassChat::updateActiveChats($chat->user_id);
+                }
+
+                $chat->user_id = 0;
             }
 
-            if ($chat->department->na_cb_execute == 1) {
-                $chat->na_cb_executed = 0;
+            if ($chat->department->nc_cb_execute == 1) {
+                $chat->nc_cb_executed = 0;
             }
 
             erLhAbstractModelAutoResponder::updateAutoResponder($chat);
 
             erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.data_changed_assigned_department',array('chat' => & $chat));
+
+            $chat->updateThis(array('update' => array('dep_id','last_user_msg_time','last_msg_id','reinform_timeout','unread_messages_informed','user_id','na_cb_executed','transfer_if_na','transfer_timeout_ts')));
+        } else {
+            $chat->updateThis(array('update' => array('transfer_if_na','transfer_timeout_ts')));
         }
 
-        $chat->updateThis();
+
     }
 
     public static function mainUnansweredChatWorkflow() {
@@ -106,7 +119,7 @@ class erLhcoreClassChatWorkflow {
     public static function unansweredChatWorkflow(erLhcoreClassModelChat & $chat){
 
         $chat->na_cb_executed = 1;
-        $chat->updateThis();
+        $chat->updateThis(array('update' => array('na_cb_executed')));
 
         // Execute callback if it exists
         $extensions = erConfigClassLhConfig::getInstance()->getOverrideValue( 'site', 'extensions' );
@@ -125,7 +138,7 @@ class erLhcoreClassChatWorkflow {
     public static function unreadInformWorkflow($options = array(), & $chat) {
 
         $chat->unread_messages_informed = 1;
-        $chat->updateThis();
+        $chat->updateThis(array('update' => array('unread_messages_informed')));
 
         if (in_array('mail', $options['options'])) {
             erLhcoreClassChatMail::sendMailUnacceptedChat($chat,7);
@@ -176,7 +189,7 @@ class erLhcoreClassChatWorkflow {
     public static function newChatInformWorkflow($options = array(), & $chat) {
 
         $chat->nc_cb_executed = 1;
-        $chat->updateThis();
+        $chat->updateThis(array('update' => array('nc_cb_executed')));
 
         if (in_array('mail', $options['options'])) {
             erLhcoreClassChatMail::sendMailUnacceptedChat($chat);
@@ -492,9 +505,7 @@ class erLhcoreClassChatWorkflow {
                 // Lock chat record for update untill we finish this procedure
                 erLhcoreClassChat::lockDepartment($department->id, $db);
 
-                $chat->syncAndLock();
-
-                if ($chat->user_id == 0 || ($department->max_timeout_seconds > 0 && $chat->tslasign < time()-$department->max_timeout_seconds)) {
+                if ($chat->status == erLhcoreClassModelChat::STATUS_PENDING_CHAT && ($chat->user_id == 0 || ($department->max_timeout_seconds > 0 && $chat->tslasign < time()-$department->max_timeout_seconds))) {
 
                     $statusWorkflow = erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.workflow.autoassign', array(
                         'department' => & $department,
@@ -585,14 +596,29 @@ class erLhcoreClassChatWorkflow {
 
                     if ($user_id > 0) {
 
+                        $previousMessage = '';
+
                         // Update previously assigned operator statistic
                         if ($chat->user_id > 0) {
+                            $userOld = erLhcoreClassModelUser::fetch($chat->user_id);
+                            $previousMessage = $userOld->name_support . ' ' . erTranslationClassLhTranslation::getInstance()->getTranslation('chat/adminchat','did not accepted chat in time.') . ' ';
                             erLhcoreClassChat::updateActiveChats($chat->user_id);
                         }
 
+                        $userNew = erLhcoreClassModelUser::fetch($user_id);
+
+                        $msg = new erLhcoreClassModelmsg();
+                        $msg->msg = $previousMessage . erTranslationClassLhTranslation::getInstance()->getTranslation('chat/adminchat','Chat was assigned to') . ' ' . $userNew->name_support;
+                        $msg->chat_id = $chat->id;
+                        $msg->user_id = -1;
+                        $msg->time = time();
+                        erLhcoreClassChat::getSession()->save($msg);
+
+
+                        $chat->last_msg_id = $msg->id;
                         $chat->tslasign = time();
                         $chat->user_id = $user_id;
-                        $chat->updateThis();
+                        $chat->updateThis(array('update' => array('last_msg_id','tslasign','user_id')));
 
                         erLhcoreClassUserDep::updateLastAcceptedByUser($user_id, time());
 
@@ -688,7 +714,13 @@ class erLhcoreClassChatWorkflow {
                 $chat->last_msg_id = $msg->id;
             }
 
-            $chat->updateThis();
+            $chat->updateThis(array('update' => array(
+                'last_op_msg_time',
+                'last_user_msg_time',
+                'has_unread_op_messages',
+                'unread_op_messages_informed',
+                'last_msg_id'
+            )));
         }
     }
 
@@ -701,7 +733,7 @@ class erLhcoreClassChatWorkflow {
             foreach ($items as $item) {
                 $item->has_unread_op_messages = 0;
                 $item->unread_op_messages_informed = 1;
-                $item->updateThis();
+                $item->updateThis(array('update' => array('has_unread_op_messages','unread_op_messages_informed')));
             }
 
             // Now inform visitors

@@ -110,13 +110,43 @@ class erLhcoreClassChatHelper
         return '';
     }
     
+    public static function cleanupOnClose($chatId) {
+        $db = ezcDbInstance::get();
+
+        $q = $db->createDeleteQuery();
+
+        // Auto responder chats
+        $q->deleteFrom( 'lh_abstract_auto_responder_chat' )->where( $q->expr->eq( 'chat_id', $chatId ) );
+        $stmt = $q->prepare();
+        $stmt->execute();
+
+        // Repeat counter remove
+        $q->deleteFrom( 'lh_generic_bot_repeat_restrict' )->where( $q->expr->eq( 'chat_id', $chatId ) );
+        $stmt = $q->prepare();
+        $stmt->execute();
+
+        // Repeat counter remove
+        $q->deleteFrom( 'lh_generic_bot_chat_event' )->where( $q->expr->eq( 'chat_id', $chatId ) );
+        $stmt = $q->prepare();
+        $stmt->execute();
+
+        // Pending event remove
+        $q->deleteFrom( 'lh_generic_bot_pending_event' )->where( $q->expr->eq( 'chat_id', $chatId ) );
+        $stmt = $q->prepare();
+        $stmt->execute();
+    }
+
     public static function closeChat($params)
     {
         if ($params['chat']->status != erLhcoreClassModelChat::STATUS_CLOSED_CHAT) {
             
             $db = ezcDbInstance::get();
             $db->beginTransaction();
-            
+
+                if ($params['chat']->status == erLhcoreClassModelChat::STATUS_ACTIVE_CHAT && $params['chat']->user_id > 0 && $params['chat']->auto_responder !== false) {
+                    $params['chat']->auto_responder->processClose();
+                }
+
                 $params['chat']->status = erLhcoreClassModelChat::STATUS_CLOSED_CHAT;
 
                 if ($params['chat']->wait_time == 0) {
@@ -138,22 +168,7 @@ class erLhcoreClassChatHelper
 
                 $params['chat']->updateThis();
 
-                $q = $db->createDeleteQuery();
-
-                // Auto responder chats
-                $q->deleteFrom( 'lh_abstract_auto_responder_chat' )->where( $q->expr->eq( 'chat_id', $params['chat']->id ) );
-                $stmt = $q->prepare();
-                $stmt->execute();
-
-                // Repeat counter remove
-                $q->deleteFrom( 'lh_generic_bot_repeat_restrict' )->where( $q->expr->eq( 'chat_id', $params['chat']->id ) );
-                $stmt = $q->prepare();
-                $stmt->execute();
-    
-                // Repeat counter remove
-                $q->deleteFrom( 'lh_generic_bot_chat_event' )->where( $q->expr->eq( 'chat_id', $params['chat']->id ) );
-                $stmt = $q->prepare();
-                $stmt->execute();
+                self::cleanupOnClose($params['chat']->id);
 
             $db->commit();
 
@@ -224,10 +239,10 @@ class erLhcoreClassChatHelper
             	
         } elseif ($changeStatus == erLhcoreClassModelChat::STATUS_CHATBOX_CHAT) {
             $chat->status = erLhcoreClassModelChat::STATUS_CHATBOX_CHAT;
-            erLhcoreClassChat::getSession()->update($chat);
+            $chat->updateThis(array('update' => array('status')));
         } elseif ($changeStatus == erLhcoreClassModelChat::STATUS_OPERATORS_CHAT) {
             $chat->status = erLhcoreClassModelChat::STATUS_OPERATORS_CHAT;
-            erLhcoreClassChat::getSession()->update($chat);
+            $chat->updateThis(array('update' => array('status')));
         }
         
         erLhcoreClassChat::updateActiveChats($chat->user_id);

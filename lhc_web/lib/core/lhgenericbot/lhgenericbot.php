@@ -39,13 +39,16 @@ class erLhcoreClassGenericBot {
                 ezcInputFormDefinitionElement::OPTIONAL, 'int',null, FILTER_REQUIRE_ARRAY
             ),
             'profile_hide' => new ezcInputFormDefinitionElement(
-                ezcInputFormDefinitionElement::OPTIONAL, 'int'
+                ezcInputFormDefinitionElement::OPTIONAL, 'boolean'
             ),
             'msg_hide' => new ezcInputFormDefinitionElement(
                 ezcInputFormDefinitionElement::OPTIONAL, 'boolean'
+            ),
+            'configuration' => new ezcInputFormDefinitionElement(
+                ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
             )
         );
-        
+
         if (isset($additionalParams['payload_data'])) {
             $form = new erLhcoreClassInputForm(INPUT_GET, $definition, null, $additionalParams['payload_data']);
         } else {
@@ -110,6 +113,15 @@ class erLhcoreClassGenericBot {
             $configurationArray['msg_hide'] = false;
         }
 
+        if ( $form->hasInputField( 'configuration' ) && $form->hasValidData('configuration') ) {
+            $configurationUpdate = json_decode($form->configuration,true);
+            if (is_array($configurationUpdate)) {
+                $configurationArray = array_merge($configurationArray, $configurationUpdate);
+            }
+        }
+
+        erLhcoreClassChatEventDispatcher::getInstance()->dispatch('bot.validate',array('bot' => & $bot, 'configuration_array' => & $configurationArray, 'additional_params' => $additionalParams));
+        
         $bot->configuration_array = $configurationArray;
         $bot->configuration = json_encode($configurationArray);
 

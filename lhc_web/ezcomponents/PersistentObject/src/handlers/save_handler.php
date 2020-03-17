@@ -67,9 +67,9 @@ class ezcPersistentSaveHandler extends ezcPersistentSessionHandler
      *
      * @param object $object
      */
-    public function update( $object, $updateIgnoreColumns = array()  )
+    public function update( $object, $updateIgnoreColumns = array(), $updateOnlyColumn = array()  )
     {
-        $this->updateInternal( $object, true, $updateIgnoreColumns );
+        $this->updateInternal( $object, true, $updateIgnoreColumns, $updateOnlyColumn );
     }
 
     /**
@@ -90,7 +90,7 @@ class ezcPersistentSaveHandler extends ezcPersistentSessionHandler
      * @param object $object
      * @return void
      */
-    public function saveOrUpdate( $object, $updateIgnoreColumns = array() )
+    public function saveOrUpdate( $object, $updateIgnoreColumns = array(), $updateOnlyColumn = array() )
     {
         $class = get_class( $object );
         $def   = $this->definitionManager->fetchDefinition( $class );
@@ -104,7 +104,7 @@ class ezcPersistentSaveHandler extends ezcPersistentSessionHandler
         }
         else
         {
-            $this->updateInternal( $object, false );
+            $this->updateInternal( $object, false, $updateIgnoreColumns, $updateOnlyColumn);
         }
     }
 
@@ -353,7 +353,7 @@ class ezcPersistentSaveHandler extends ezcPersistentSessionHandler
      * @param object $object
      * @param bool $doPersistenceCheck
      */
-    private function updateInternal( $object, $doPersistenceCheck = true, $updateIgnoreColumns = array() )
+    private function updateInternal( $object, $doPersistenceCheck = true, $updateIgnoreColumns = array(), $updateOnlyColumn = array() )
     {
         $class = get_class( $object );
         $def   = $this->definitionManager->fetchDefinition( $class );
@@ -372,13 +372,15 @@ class ezcPersistentSaveHandler extends ezcPersistentSessionHandler
             throw new ezcPersistentObjectNotPersistentException( $class );
         }
 
-        //print_r($updateIgnoreColumns);
-       // print_r($state);
-       
-        foreach ($updateIgnoreColumns as $column) {
-        	unset($state[$column]);
-        }        
-        
+        if (!empty($updateOnlyColumn)) {
+            $updateOnlyColumn[] = $def->idProperty->propertyName;
+            $state = array_intersect_key($state, array_flip($updateOnlyColumn));
+        } else {
+            foreach ($updateIgnoreColumns as $column) {
+                unset($state[$column]);
+            }
+        }
+
         // Set up and execute the query
         $q = $this->buildUpdateQuery($def, $state);
 
@@ -530,7 +532,7 @@ class ezcPersistentSaveHandler extends ezcPersistentSessionHandler
             }
             else
             {
-                if ( !array_key_exists( $name, $def->properties ) )
+                if ( !isset($def->properties[$name]) )
                 {
                     // Unknown property
                     continue;

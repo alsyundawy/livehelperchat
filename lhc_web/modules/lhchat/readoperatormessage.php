@@ -461,7 +461,7 @@ if (isset($_POST['askQuestion']))
     {
 
        $chat->time = $chat->pnd_time = time();
-       $chat->status = 0;
+       $chat->status = erLhcoreClassModelChat::STATUS_PENDING_CHAT;
        $chat->setIP();
        $chat->hash = erLhcoreClassChat::generateHash();
        $chat->referrer = isset($_POST['URLRefer']) ? $_POST['URLRefer'] : '';
@@ -471,7 +471,7 @@ if (isset($_POST['askQuestion']))
        		$chat->nick = erTranslationClassLhTranslation::getInstance()->getTranslation('chat/startchat','Visitor');
        }
        
-       erLhcoreClassModelChat::detectLocation($chat);
+       erLhcoreClassModelChat::detectLocation($chat, (string)$Params['user_parameters_unordered']['vid']);
      
        $chat->priority = is_numeric($Params['user_parameters_unordered']['priority']) ? (int)$Params['user_parameters_unordered']['priority'] : $chat->department->priority;
        $chat->chat_initiator = erLhcoreClassModelChat::CHAT_INITIATOR_PROACTIVE;

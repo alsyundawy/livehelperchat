@@ -221,6 +221,16 @@
 						<label><?php echo $fields['header_padding']['trans'];?></label>
 						<?php echo erLhcoreClassAbstract::renderInput('header_padding', $fields['header_padding'], $object)?>		
 						</div>
+                    
+						<div class="form-group">	
+						<label><?php echo $fields['wwidth']['trans'];?></label>
+						<?php echo erLhcoreClassAbstract::renderInput('wwidth', $fields['wwidth'], $object)?>		
+						</div>
+                    
+						<div class="form-group">	
+						<label><?php echo $fields['wheight']['trans'];?></label>
+						<?php echo erLhcoreClassAbstract::renderInput('wheight', $fields['wheight'], $object)?>		
+						</div>
 						
 						<?php /*
 						<div class="form-group">							
@@ -265,6 +275,28 @@
 						<div class="form-group">	
 						<label><?php echo erLhcoreClassAbstract::renderInput('hide_popup', $fields['hide_popup'], $object)?> <?php echo $fields['hide_popup']['trans'];?></label>	
         		        </div>
+
+						<div class="form-group">	
+						<label><?php echo erLhcoreClassAbstract::renderInput('detect_language', $fields['detect_language'], $object)?> <?php echo $fields['detect_language']['trans'];?></label>
+        		        </div>
+
+						<div class="form-group">
+						    <label><?php echo erLhcoreClassAbstract::renderInput('survey_button', $fields['survey_button'], $object)?> <?php echo $fields['survey_button']['trans'];?></label>
+        		        </div>
+
+						<div class="form-group">
+						    <label><?php echo erLhcoreClassAbstract::renderInput('confirm_close', $fields['confirm_close'], $object)?> <?php echo $fields['confirm_close']['trans'];?></label>
+        		        </div>
+
+						<div class="form-group">
+						    <label><?php echo erLhcoreClassAbstract::renderInput('close_on_unload', $fields['close_on_unload'], $object)?> <?php echo $fields['close_on_unload']['trans'];?></label>
+        		        </div>
+
+                        <div class="form-group">
+                            <label><?php echo $fields['switch_to_human']['trans'];?></label>
+                            <?php echo erLhcoreClassAbstract::renderInput('switch_to_human', $fields['switch_to_human'], $object)?>
+                        </div>
+
         		
         		</div>
         		<div role="tabpanel" class="tab-pane" id="needhelp">
@@ -336,6 +368,11 @@
         		    <div class="form-group">										
 					<label><?php echo $fields['show_voting']['trans'];?></label>
 					<?php echo erLhcoreClassAbstract::renderInput('show_voting', $fields['show_voting'], $object)?>		
+					</div>
+
+        		    <div class="form-group">
+					<label><?php echo $fields['hide_status']['trans'];?></label>
+					<?php echo erLhcoreClassAbstract::renderInput('hide_status', $fields['hide_status'], $object)?>
 					</div>
 					
         		    <div class="form-group">										
@@ -413,6 +450,12 @@
                     <label><?php echo $fields['custom_popup_css']['trans'];?></label>
                     <?php echo erLhcoreClassAbstract::renderInput('custom_popup_css', $fields['custom_popup_css'], $object)?>
                     </div>
+
+                    <div class="form-group">
+                    <label><?php echo $fields['custom_page_css']['trans'];?></label>
+                    <?php echo erLhcoreClassAbstract::renderInput('custom_page_css', $fields['custom_page_css'], $object)?>
+                    </div>
+
         		</div>
 
                 <div role="tabpanel" class="tab-pane" id="customcontent">
@@ -556,6 +599,11 @@
                     <div class="form-group">
                         <label><?php echo $fields['ntitle']['trans'];?></label>
                         <?php echo erLhcoreClassAbstract::renderInput('ntitle', $fields['ntitle'], $object)?>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><?php echo $fields['ndomain']['trans'];?></label>
+                        <?php echo erLhcoreClassAbstract::renderInput('ndomain', $fields['ndomain'], $object)?>
                     </div>
 
                     <div class="form-group">

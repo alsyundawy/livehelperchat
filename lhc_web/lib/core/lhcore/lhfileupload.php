@@ -102,6 +102,10 @@ class erLhcoreClassFileUpload extends UploadHandler
                 }
                 $chat->last_user_msg_time = $msg->time = time();
 
+                if ($msg->user_id > 0) {
+                    erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_msg_admin_saved', array('msg' => & $msg, 'chat' => & $chat));
+                }
+
                 erLhcoreClassChat::getSession()->save($msg);
 
                 // Set last message ID
@@ -109,8 +113,12 @@ class erLhcoreClassFileUpload extends UploadHandler
                     $chat->last_msg_id = $msg->id;
                 }
 
+                if (isset($chat->chat_variables_array['gbot_id']) && (!isset($chat->chat_variables_array['gbot_disabled']) || $chat->chat_variables_array['gbot_disabled'] == 0)) {
+                    erLhcoreClassGenericBotWorkflow::userMessageAdded($chat, $msg);
+                }
+
                 $chat->has_unread_messages = 1;
-                $chat->updateThis();
+                $chat->updateThis(array('update' => array('last_user_msg_time','last_msg_id','has_unread_messages')));
 
                 erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.web_add_msg_admin', array('msg' => & $msg, 'chat' => & $chat));
             }

@@ -2,8 +2,6 @@
 // Happens then user closes browser.
 ignore_user_abort(true);
 
-header('content-type: application/json; charset=utf-8');
-
 $db = ezcDbInstance::get();
 $db->beginTransaction();
 
@@ -29,34 +27,47 @@ if (is_object($chat) && $chat->hash == $Params['user_parameters']['hash'])
 		    
 		    if ($Params['user_parameters_unordered']['eclose'] == 't') {
 
-		        erLhcoreClassChat::lockDepartment($chat->dep_id, $db);
+                if ($chat->wait_time == 0) {
+                    $chat->wait_time = time() - ($chat->pnd_time > 0 ? $chat->pnd_time : $chat->time);
+                }
 
-    		    // From now chat will be closed explicitly	   
-    	        $chat->status_sub = erLhcoreClassModelChat::STATUS_SUB_USER_CLOSED_CHAT;
- 
-    	        if ($chat->wait_time == 0) {
-    	            $chat->wait_time = time() - ($chat->pnd_time > 0 ? $chat->pnd_time : $chat->time);
-    	        }
-    	        
-    	        $msg = new erLhcoreClassModelmsg();
-    	        $msg->msg = htmlspecialchars_decode(erTranslationClassLhTranslation::getInstance()->getTranslation('chat/userleftchat','Visitor has closed the chat explicitly!'),ENT_QUOTES);;
-    	        $msg->chat_id = $chat->id;
-    	        $msg->user_id = -1;
-    	        $msg->time = time();
-    	    
-    	        erLhcoreClassChat::getSession()->save($msg);
-    	    
-    	        $chat->last_user_msg_time = $msg->time;
-    	    
-    	        // Set last message ID
-    	        if ($chat->last_msg_id < $msg->id) {
-    	            $chat->last_msg_id = $msg->id;
-    	        }
-    	        
+                if ($chat->status_sub != erLhcoreClassModelChat::STATUS_SUB_USER_CLOSED_CHAT) {
+                    erLhcoreClassChat::lockDepartment($chat->dep_id, $db);
+
+                    // From now chat will be closed explicitly
+                    $chat->status_sub = erLhcoreClassModelChat::STATUS_SUB_USER_CLOSED_CHAT;
+
+                    $msg = new erLhcoreClassModelmsg();
+                    $msg->msg = htmlspecialchars_decode(erTranslationClassLhTranslation::getInstance()->getTranslation('chat/userleftchat', 'Visitor has closed the chat explicitly!'), ENT_QUOTES);;
+                    $msg->chat_id = $chat->id;
+                    $msg->user_id = -1;
+                    $msg->time = time();
+
+                    erLhcoreClassChat::getSession()->save($msg);
+
+                    $chat->last_user_msg_time = $msg->time;
+
+                    // Set last message ID
+                    if ($chat->last_msg_id < $msg->id) {
+                        $chat->last_msg_id = $msg->id;
+                    }
+                }
+
     	        $explicitClosed = true;
 		    }
-		    
-		    erLhcoreClassChat::getSession()->update($chat);
+
+            $chat->updateThis(array('update' => array(
+                'last_msg_id',
+                'last_user_msg_time',
+                'wait_time',
+                'status_sub',
+                'user_typing_txt',
+                'user_closed_ts',
+                'is_user_typing',
+                'user_typing',
+                'support_informed',
+                'user_status'
+            )));
 		    
 		    if ($chat->has_unread_messages == 1 && $chat->last_user_msg_time < (time() - 5)) {
 		        erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.unread_chat',array('chat' => & $chat));
@@ -75,6 +86,7 @@ if (is_object($chat) && $chat->hash == $Params['user_parameters']['hash'])
 	}
 }
 
+erLhcoreClassRestAPIHandler::setHeaders();
 echo json_encode(array('error' => 'false', 'result' => 'ok'));
 exit;
 

@@ -143,6 +143,17 @@ return array(
         'validation_definition' => new ezcInputFormDefinitionElement(
             ezcInputFormDefinitionElement::OPTIONAL, 'int'
         )),
+     'user_id' => array(
+        'type' => 'combobox',
+        'trans' => erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/proactivechatinvitation', 'User'),
+        'required' => false,
+        'frontend' => 'user',
+        'source' => 'erLhcoreClassModelDepartament::getList',
+        'hide_optional' => false,
+        'params_call' => array(),
+        'validation_definition' => new ezcInputFormDefinitionElement(
+            ezcInputFormDefinitionElement::OPTIONAL, 'int'
+        )),
     'wait_message' => array(
         'type' => 'textarea',
         'height' => '86px',
@@ -410,7 +421,6 @@ return array(
             'validation_definition' => new ezcInputFormDefinitionElement(
                 ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw'
         )),
-
         'timeout_op_reply_message_1' => array(
             'type' => 'textarea',
             'height' => '86px',
@@ -507,7 +517,26 @@ return array(
         'validation_definition' => new ezcInputFormDefinitionElement(
             ezcInputFormDefinitionElement::OPTIONAL, 'int', array('min_range' => 0)
         )),
-
+        'close_message' => array(
+        'type' => 'textarea',
+        'trans' => erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/proactivechatinvitation', 'Message to visitor on chat close'),
+        'height' => '86px',
+        'required' => false,
+        'hidden' => true,
+        'main_attr' => 'bot_configuration_array',
+        'validation_definition' => new ezcInputFormDefinitionElement(
+            ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw', array()
+        )),
+        'offline_message' => array(
+        'type' => 'textarea',
+        'trans' => erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/proactivechatinvitation', 'Message to visitor if department is offline'),
+        'height' => '86px',
+        'required' => false,
+        'hidden' => true,
+        'main_attr' => 'bot_configuration_array',
+        'validation_definition' => new ezcInputFormDefinitionElement(
+            ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw', array()
+        )),
         'nreply_op_bot_id_1' => array(
         'type' => 'combobox',
         'trans' => erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme', 'Choose a bot'),

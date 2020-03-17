@@ -50,7 +50,7 @@
           "application/json"
         ],
         "parameters": [
-          {
+          {{chats_parameters}}{
             "name": "departament_id",
             "in": "query",
             "description": "Department ID",
@@ -59,9 +59,61 @@
             "format": "int32"
           },
           {
+            "name": "departament_ids",
+            "in": "query",
+            "description": "Department ID's",
+            "required": false,
+            "type": "array",
+            "items":{
+              "type":"integer"
+            }
+          },
+          {
+            "name": "departament_groups_ids",
+            "in": "query",
+            "description": "Department group ID's",
+            "required": false,
+            "type": "array",
+            "items":{
+              "type":"integer"
+            }
+          },
+          {
+            "name": "department_groups",
+            "description": "Should we include department_groups attribute in response",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
+          },
+          {
             "name": "user_id",
             "in": "query",
             "description": "User ID",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "Phone",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "nick",
+            "in": "query",
+            "description": "Nick",
             "required": false,
             "type": "string",
             "format": "int32"
@@ -99,8 +151,215 @@
             "format": "int32"
           },
           {
+            "name": "id_gt",
+            "in": "query",
+            "description": "ID greater than",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "last_user_msg_time_gt",
+            "in": "query",
+            "description": "Last user message time greater than",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "time_gt",
+            "in": "query",
+            "description": "Time greater than. Unix timestamp.",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
             "name": "include_messages",
             "description": "Include messages within chat",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
+          },
+          {
+            "name": "group_by_nick",
+            "description": "Group by nick",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
+          },
+          {
+            "name": "group_by_phone",
+            "description": "Group by phone",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
+          },
+          {
+            "name": "group_by_email",
+            "description": "Group by e-mail.",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
+          },
+          {
+            "name": "prefill_fields",
+            "description": "What fields to prefill E.g time_created_front, department_name, plain_user_name, product_name, n_official, n_off_full, wait_time_pending, wait_time_seconds, cls_time_front, tatus_sub_sub, can_edit_chat, unread_time",
+            "required": false,
+            "type": "string",
+            "in": "query"
+          },
+          {
+            "name": "ignore_fields",
+            "description": "What fields to skip E.g product_id, product, department, time, status, user, additional_data, additional_data_array, chat_variables, chat_variables_array",
+            "required": false,
+            "type": "string",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fetch chat list",
+            "schema": {
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+            }
+          }
+        },
+        "security": [
+          {
+            "login": []
+          }
+        ]
+      }
+    },
+    "/restapi/chatscount": {
+      "get": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Get only number of chats",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {{chats_parameters}}{
+            "name": "departament_id",
+            "in": "query",
+            "description": "Department ID",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "departament_groups_ids",
+            "in": "query",
+            "description": "Department group ID's",
+            "required": false,
+            "type": "array",
+            "items":{
+              "type":"integer"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "description": "User ID",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "phone",
+            "in": "query",
+            "description": "Phone",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Email",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "nick",
+            "in": "query",
+            "description": "Nick",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "delay",
+            "in": "query",
+            "description": "How many seconds has to be passed from chat start. It's usefull if you want to fetch chats older than n seconds. It's time in seconds from chat start.",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "id_gt",
+            "in": "query",
+            "description": "ID greater than",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "last_user_msg_time_gt",
+            "in": "query",
+            "description": "Last user message time greater than",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "time_gt",
+            "in": "query",
+            "description": "Time greater than. Unix timestamp.",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "group_by_nick",
+            "description": "Group by nick",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
+          },
+          {
+            "name": "group_by_phone",
+            "description": "Group by phone",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
+          },
+          {
+            "name": "group_by_email",
+            "description": "Group by e-mail.",
             "required": false,
             "type": "boolean",
             "default": false,
@@ -337,6 +596,14 @@
             "required": false,
             "type": "string",
             "format": "int32"
+          },
+          {
+            "name": "department_groups",
+            "description": "Should we include department_groups attribute in response",
+            "required": false,
+            "type": "boolean",
+            "default": false,
+            "in": "query"
           }
         ],
         "responses": {
@@ -501,8 +768,8 @@
           {
             "name": "hash",
             "in": "formData",
-            "description": "Hash",
-            "required": true,
+            "description": "Hash. If you skip hash make sure you set validation headers. Otherwise it is are not required to set validation header.",
+            "required": false,
             "type": "string"
           }
         ],
@@ -517,7 +784,12 @@
             "schema": {
             }
           }
-        }
+        },
+        "security": [
+          {
+            "login": []
+          }
+        ]
       }
     },
     "/restapi/addmsgadmin": {
@@ -1299,6 +1571,46 @@
           "application/json"
         ],
         "parameters": [
+          {
+            "name": "attr_str_1",
+            "in": "query",
+            "description": "Custom attribute attr_str_1 (exact match)",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "attr_str_2",
+            "in": "query",
+            "description": "Custom attribute attr_str_2 (exact match)",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "attr_str_3",
+            "in": "query",
+            "description": "Custom attribute attr_str_3 (exact match)",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name like %name%",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "nick",
+            "in": "query",
+            "description": "Nick like %nick%",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          }
         ],
         "responses": {
           "200": {
@@ -1330,10 +1642,105 @@
           "application/json"
         ],
         "parameters": [
+          {
+            "name": "attr_int_1",
+            "in": "query",
+            "description": "Custom attribute attr_int_1 (exact match)",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "attr_int_2",
+            "in": "query",
+            "description": "Custom attribute attr_int_2 (exact match)",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "attr_int_3",
+            "in": "query",
+            "description": "Custom attribute attr_int_3 (exact match)",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "description": "Custom attribute email (exact match)",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name like %name%",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "description": "Custom attribute identifier (exact match)",
+            "required": false,
+            "type": "string",
+            "format": "int32"
+          },
+          {
+            "name": "disabled",
+            "in": "query",
+            "description": "Disabled",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "hidden",
+            "in": "query",
+            "description": "Hidden",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
         ],
         "responses": {
           "200": {
             "description": "Returns list of departments",
+            "schema": {
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+            }
+          }
+        },
+        "security": [
+          {
+            "login": []
+          }
+        ]
+      }
+    },
+    "/restapi/extensions": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "List of activated extensions",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns list of activated extensions",
             "schema": {
             }
           },
@@ -1515,6 +1922,131 @@
         ]
       }
     },
+    "/restapi/chat/{chat_id}": {
+      "put": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Update a chat",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Chat object that needs to be modified in Live Helper Chat",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Chat"
+            }
+          },
+          {
+            "name": "chat_id",
+            "in": "path",
+            "description": "Chat ID to update",
+            "required": true,
+            "type": "string",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updates chat with specified attributes",
+            "schema": {
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+            }
+          }
+        },
+        "security": [
+          {
+            "login": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Delete a chat",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "chat_id",
+            "in": "path",
+            "description": "Chat ID to delete",
+            "required": true,
+            "type": "string",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deletes specified chat",
+            "schema": {
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+            }
+          }
+        },
+        "security": [
+          {
+            "login": []
+          }
+        ]
+      }
+    },
+    "/restapi/chat": {
+      "post": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Creates a new chat",
+        "description": "",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Creates a chat and returns it's data",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewChat"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Creates a chat and returns it's attributes",
+            "schema": {
+            }
+          },
+          "400": {
+            "description": "Error",
+            "schema": {
+            }
+          }
+        },
+        "security": [
+          {
+            "login": []
+          }
+        ]
+      }
+    },
     "/restapi/bot/{bot_id}": {
       "put": {
         "tags": [
@@ -1599,7 +2131,7 @@
           }
         ]
       }
-    }
+    }{{append_paths}}
   },
   "securityDefinitions": {
     "login": {
@@ -1608,6 +2140,350 @@
     }
   },
   "definitions": {
+{{append_definitions}}"Chat": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Unque Chat ID",
+          "example": null
+        },
+        "nick": {
+          "type": "string",
+          "default": "Visitor",
+          "description": "Visitor nick",
+          "example": "Visitor"
+        },
+        "status": {
+          "type": "integer",
+          "description": "const STATUS_PENDING_CHAT = 0;\nconst STATUS_ACTIVE_CHAT = 1;\nconst STATUS_CLOSED_CHAT = 2;\nconst STATUS_CHATBOX_CHAT = 3;\nconst STATUS_OPERATORS_CHAT = 4;\nconst STATUS_BOT_CHAT = 5;",
+          "example": null
+        },
+        "status_sub": {
+          "type": "integer",
+          "description": "const STATUS_SUB_DEFAULT = 0;\n   const STATUS_SUB_OWNER_CHANGED = 1;\n   const STATUS_SUB_CONTACT_FORM = 2;\n   const STATUS_SUB_USER_CLOSED_CHAT = 3;\n   const STATUS_SUB_START_ON_KEY_UP = 4;\n   const STATUS_SUB_SURVEY_SHOW = 5;\n   const STATUS_SUB_SURVEY_COLLECTED = 6;\n   const STATUS_SUB_OFFLINE_REQUEST = 7;\n   const STATUS_SUB_ON_HOLD = 8;",
+          "example": null
+        },
+        "status_sub_arg": {
+          "type": "string",
+          "description": "Custom arguments for sub status",
+          "example": null
+        },
+        "status_sub_sub": {
+          "type": "integer",
+          "description": "   const STATUS_SUB_SUB_DEFAULT = 0;\n   const STATUS_SUB_SUB_TRANSFERED = 1;\n   const STATUS_SUB_SUB_CLOSED = 2; // Chat was previously closed, but became pending again.",
+          "example": null
+        },
+        "sender_user_id": {
+          "type": "integer",
+          "description": "What operator (id) transferred chat",
+          "example": null
+        },
+        "time": {
+          "type": "integer",
+          "description": "Chat creation time in unix timestamp",
+          "example": null
+        },
+        "user_id": {
+          "type": "integer",
+          "description": "To what operator chat is assigned",
+          "example": null
+        },
+        "hash": {
+          "type": "string",
+          "description": "Security hash. Used to check that visitor has access to chat.",
+          "example": null
+        },
+        "ip": {
+          "type": "string",
+          "description": "Visitor IP",
+          "example": null
+        },
+        "referrer": {
+          "type": "string",
+          "description": "Referrer page. From what page customer come to website.",
+          "example": null
+        },
+        "dep_id": {
+          "type": "integer",
+          "description": "To what department chat belongs to",
+          "example": null
+        },
+        "email": {
+          "type": "string",
+          "description": "Customer e-mail",
+          "example": null
+        },
+        "user_status": {
+          "type": "integer",
+          "description": "   const USER_STATUS_JOINED_CHAT = 0;\n   const USER_STATUS_CLOSED_CHAT = 1;\n   const USER_STATUS_PENDING_REOPEN = 2;",
+          "example": null
+        },
+        "country_code": {
+          "type": "string",
+          "description": "Two letter country code",
+          "example": null
+        },
+        "country_name": {
+          "type": "string",
+          "description": "Full country name",
+          "example": null
+        },
+        "user_typing": {
+          "type": "integer",
+          "description": "Holds timestamp then visitor started typing. Is updated constantly while visitor is typing.",
+          "example": null
+        },
+        "user_typing_txt": {
+          "type": "string",
+          "description": "Visitor typing text",
+          "example": null
+        },
+        "operator_typing": {
+          "type": "integer",
+          "description": "Operator started typing. Stores timestamp then it started.",
+          "example": null
+        },
+        "operator_typing_id": {
+          "type": "integer",
+          "description": "Stores what operator started typing.",
+          "example": null
+        },
+        "phone": {
+          "type": "string",
+          "description": "Customer phone",
+          "example": null
+        },
+        "has_unread_messages": {
+          "type": "integer",
+          "description": "Has operator unread messages from visitor. 0 - no, 1 - yes",
+          "example": null
+        },
+        "has_unread_op_messages": {
+          "type": "integer",
+          "description": "Has visitor unread messages from operator. 0 - no, 1 - yes",
+          "example": null
+        },
+        "last_msg_id": {
+          "type": "integer",
+          "description": "Last chat message id",
+          "example": null
+        },
+        "mail_send": {
+          "type": "integer",
+          "description": "Was mail send to customer. 0 - no, 1 - yes",
+          "example": null
+        },
+        "lat": {
+          "type": "string",
+          "description": "Latitude of visitor location",
+          "example": null
+        },
+        "lon": {
+          "type": "string",
+          "description": "Longitute of visitor location",
+          "example": null
+        },
+        "city": {
+          "type": "string",
+          "description": "Detected visitor city",
+          "example": null
+        },
+        "additional_data": {
+          "type": "string",
+          "description": "Stores additional passed chat data in JSON format.",
+          "example": null
+        },
+        "session_referrer": {
+          "type": "string",
+          "description": "From what page chat was started.",
+          "example": null
+        },
+        "wait_time": {
+          "type": "integer",
+          "description": "How long visitor waited for chat being accepted.",
+          "example": null
+        },
+        "chat_duration": {
+          "type": "integer",
+          "description": "How long chat took. Calculated on chat close.",
+          "example": null
+        },
+        "chat_variables": {
+          "type": "string",
+          "description": "Chat variables. These can store custom chat data accessed only by extensions. Stored as JSON format.",
+          "example": null
+        },
+        "priority": {
+          "type": "integer",
+          "description": "Chat priority in pending chat list. Also used in auto assign workflow.",
+          "example": null
+        },
+        "chat_initiator": {
+          "type": "integer",
+          "description": "How chat was initialized.\nconst CHAT_INITIATOR_DEFAULT = 0;\n   const CHAT_INITIATOR_PROACTIVE = 1;",
+          "example": null
+        },
+        "user_tz_identifier": {
+          "type": "string",
+          "description": "Visitor timezone detected.",
+          "example": null
+        },
+        "user_closed_ts": {
+          "type": "string",
+          "description": "Timestamp then visitor closed a widget.",
+          "example": null
+        },
+        "lsync": {
+          "type": "string",
+          "description": "Last time visitor checked for new messages. Updated every 30 seconds from last update.",
+          "example": null
+        },
+        "online_user_id": {
+          "type": "string",
+          "description": "Online user record ID",
+          "example": null
+        },
+        "unread_messages_informed": {
+          "type": "integer",
+          "description": "Have we informed operator by e-mail. Etc. That there is unread chat messages from visitor.",
+          "example": null
+        },
+        "unread_op_messages_informed": {
+          "type": "integer",
+          "description": "Have we informed visitor by e-mail. Etc. that there is unread chat messages from operator.",
+          "example": null
+        },
+        "reinform_timeout": {
+          "type": "integer",
+          "description": "If messages stays for defined amount unread in seconds we should inform operator about unread message.",
+          "example": null
+        },
+        "auto_responder_id": {
+          "type": "integer",
+          "description": "Auto responder ID",
+          "example": null
+        },
+        "transfer_timeout_ts": {
+          "type": "integer",
+          "description": "To be defined...",
+          "example": null
+        },
+        "transfer_if_na": {
+          "type": "integer",
+          "description": "To be defined...",
+          "example": null
+        },
+        "transfer_timeout_ac": {
+          "type": "integer",
+          "description": "To be defined...",
+          "example": null
+        },
+        "transfer_uid": {
+          "type": "integer",
+          "description": "To be defined...",
+          "example": null
+        },
+        "na_cb_executed": {
+          "type": "integer",
+          "description": "To be defined...",
+          "example": null
+        },
+        "nc_cb_executed": {
+          "type": "integer",
+          "description": "To be defined...",
+          "example": null
+        },
+        "fbst": {
+          "type": "integer",
+          "description": "0 - No feedback left. 1 - Up voted. 2 - Down voted.",
+          "example": null
+        },
+        "remarks": {
+          "type": "string",
+          "description": "Operator remarks",
+          "example": null
+        },
+        "operation": {
+          "type": "string",
+          "description": "What operation is pending visitor? Holds javascript to executed.",
+          "example": null
+        },
+        "operation_admin": {
+          "type": "string",
+          "description": "What operation is pending operator? Holds javascript to executed.",
+          "example": null
+        },
+        "screenshot_id": {
+          "type": "integer",
+          "description": "File id which holds screenshot.",
+          "example": null
+        },
+        "tslasign": {
+          "type": "integer",
+          "description": "Timestamp since last auto assignment. Used in chat auto balancing.",
+          "example": null
+        },
+        "usaccept": {
+          "type": "integer",
+          "description": "Operator status while he was accepting chat",
+          "example": null
+        },
+        "chat_locale": {
+          "type": "string",
+          "description": "Visitor language",
+          "example": null
+        },
+        "chat_locale_to": {
+          "type": "string",
+          "description": "Operator language",
+          "example": null
+        },
+        "unanswered_chat": {
+          "type": "integer",
+          "description": "Was chat unanswered before user has left a chat",
+          "example": null
+        },
+        "product_id": {
+          "type": "integer",
+          "description": "Product ID",
+          "example": null
+        },
+        "invitation_id": {
+          "type": "integer",
+          "description": "By what invitation chat was started",
+          "example": null
+        },
+        "uagent": {
+          "type": "integer",
+          "description": "Visitor user agent",
+          "example": null
+        },
+        "device_type": {
+          "type": "integer",
+          "description": "0 - PC, 1 - mobile, 2 - tablet",
+          "example": null
+        },
+        "pnd_time": {
+          "type": "integer",
+          "description": "Time then chat became pending. Unix timestamp.",
+          "example": null
+        },
+        "cls_time": {
+          "type": "integer",
+          "description": "Time then chat was closed. Unix timestamp.",
+          "example": null
+        },
+        "anonymized": {
+          "type": "integer",
+          "description": "Was chat data anonymized. 0 - no, 1 - yes",
+          "example": null
+        }
+      },
+      "example" : {
+        "nick" : "Visitor"
+      }
+    },
     "Bot": {
       "type": "object",
       "properties": {
@@ -1652,6 +2528,257 @@
       "example" : {
         "name" : "Name of the bot",
         "nick" : "Nick of the bot"
+      }
+    },
+   "NewChat": {
+      "type": "object",
+      "properties": {
+        "ignore_required": {
+          "type": "boolean",
+          "default": true,
+          "required": false,
+          "description": "Should we apply same required fields validation as starting chat from web interface."
+        },
+        "department": {
+          "type": "array",
+          "default": "name",
+          "required": false,
+          "description": "Department ID's. From what departments list chat is provided. You should include array of departments. Even if it's only one department."
+        },
+        "invitation_id": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "Proactive invitation ID"
+        },
+        "theme": {
+          "type": "integer",
+          "default": "",
+          "required": false,
+          "description": "Theme"
+        },
+       "vid": {
+          "type": "string",
+          "default": "",
+          "required": false,
+          "description": "Online visitor unique hash"
+        },
+        "fields": {
+          "$ref": "#/definitions/NewChatFields"
+        },
+        "messages": {
+          "type": "array",
+          "default": "name",
+          "required": false,
+          "items": {
+            "$ref": "#/definitions/ChatMessage"
+          },
+          "description": "If you are creating chat and chat existed already in third party system it makes sense to pass also previous messages."
+        },
+        "chat_variables": {
+          "type": "array",
+          "default": "name",
+          "required": false,
+          "description": "Provide additional chat variables which can be used by extension. E.g [{UUID: \"Some internal value\"}]"
+        },
+        "additional_data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalItem"
+          },
+          "default": "name",
+          "required": false,
+          "description": "Stores additional chat variables. These variables are visible by operators and have strict structure."
+        }
+      },
+      "example" : {
+          "ignore_required" : true,
+          "department" : [1],
+          "fields" : {
+              "Question" : "Visitor Initial Message. If you are passing messages argument makes sense just skip this",
+              "Username" : "Visitor nick"
+          },
+          "chat_variables" : {
+              "UUID" : "Just some internal variable"
+          },
+          "additional_data" : [
+              {
+                "h": true,
+                "identifier": "age",
+                "key": "Age",
+                "value": 18
+              }
+          ],
+          "messages" : [
+              {
+                "msg": "Visitor initial message",
+                "time": {{ts}},
+                "user_id": 0
+              },
+              {
+                "msg": "Bot message",
+                "time": {{ts}},
+                "user_id": -2
+              },
+              {
+                "msg": "System message",
+                "time": {{ts}},
+                "user_id": -1
+              }
+          ]
+      }
+    },
+    "NewChatFields": {
+      "type": "object",
+      "properties": {
+        "Question": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "User initial message"
+        },
+        "Username": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Visitor nick"
+        },
+        "Email": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Visitor E-mail"
+        },
+        "Phone": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Visitor Phone"
+        },
+        "AcceptTOS": {
+          "type": "boolean",
+          "default": "name",
+          "required": false,
+          "description": "Accept Terms Of Service"
+        },
+        "DepartamentID": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "To what department chat should be assigned"
+        },
+        "priority": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "Priority of chat"
+       },
+       "URLRefer": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Chat referrer. Page URL or E.g CRM"
+        },
+        "r": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Current session referer. E.g CRM Finance"
+        },
+        "bot_id": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "Bot ID to assign to chat. It will override department bot"
+        },
+        "user_timezone": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "User timezone offset in hours"
+        },
+        "operator": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "To what operator chat should be assigned directly"
+        }
+      }
+    },
+    "AdditionalItem": {
+      "type": "object",
+      "properties": {
+        "h": {
+          "type": "boolean",
+          "default": false,
+          "required": false,
+          "description": "Was value passed as hidden"
+        },
+        "identifier": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "This can be used in extension and should be system name without constantly changing value"
+        },
+        "key": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Operator sees this as passed variable name. Literal name."
+        },
+        "value": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Value"
+        }
+      }
+    },
+    "ChatMessage": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "default": null,
+          "required": false,
+          "description": "Message ID"
+        },
+        "msg": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Message text"
+        },
+        "meta_msg": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Meta message content. JSON encoded string."
+        },
+        "time": {
+          "type": "integer",
+          "default": "name",
+          "required": true,
+          "description": "Message time in unix timestamp"
+        },
+        "chat_id": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "Chat ID"
+        },
+        "user_id": {
+          "type": "integer",
+          "default": "name",
+          "required": false,
+          "description": "User ID. Message type depends on user id. [0] - Visitor message, [> 0] - Operator Message, [-1] - System message. Not visible by visitor, [-2] Bot message"
+        },
+        "name_support": {
+          "type": "string",
+          "default": "name",
+          "required": false,
+          "description": "Operator nick"
+        }
       }
     },
     "Department": {
@@ -1861,6 +2988,21 @@
           "nullable": true,
           "example": null,
           "min" : 1
+        },
+        "attr_int_1": {
+          "type": "integer",
+          "nullable": true,
+          "example": null
+        },
+        "attr_int_2": {
+          "type": "integer",
+          "nullable": true,
+          "example": null
+        },
+        "attr_int_3": {
+          "type": "integer",
+          "nullable": true,
+          "example": null
         }
       },
       "example" : {

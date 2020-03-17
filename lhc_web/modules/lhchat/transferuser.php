@@ -33,10 +33,13 @@ if (is_numeric( $Params['user_parameters']['chat_id']) && is_numeric($Params['us
                         $Chat->last_msg_id = $msg->id;
                         $Chat->last_user_msg_time = time();
                         $Chat->user_id = $user->id;
+                        $Chat->status_sub = erLhcoreClassModelChat::STATUS_SUB_OWNER_CHANGED;
                         $Chat->saveThis();
 
                         $tpl = erLhcoreClassTemplate::getInstance('lhkernel/alert_success.tpl.php');
                         $tpl->set('msg', erTranslationClassLhTranslation::getInstance()->getTranslation('chat/transferuser', 'Chat owner was changed to') . ' ' . $user->name_support);
+
+                        erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.chat_owner_changed', array('chat' => & $Chat, 'user' => $user));
 
                         echo json_encode(['error' => 'false', 'result' => $tpl->fetch(), 'chat_id' => $Params['user_parameters']['chat_id']]);
                     } else {
@@ -117,7 +120,7 @@ if (is_numeric( $Params['user_parameters']['chat_id']) && is_numeric($Params['us
                 $Chat->transfer_uid = $currentUser->getUserID();
                 $Chat->saveThis();
 
-                erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.chat_transfered', array('chat' => & $Chat));
+                erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.chat_transfered', array('chat' => & $Chat, 'transfer' => $Transfer));
 
                 echo json_encode(['error' => 'false', 'result' => $tpl->fetch(), 'chat_id' => $Params['user_parameters']['chat_id']]);
             }

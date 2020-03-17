@@ -48,12 +48,35 @@
     <label><?php echo erLhcoreClassAbstract::renderInput('dreset_survey', $fields['dreset_survey'], $object)?> <?php echo $fields['dreset_survey']['trans'];?></label>
 </div>
 
-<div class="form-group">
-<label><?php echo $fields['wait_message']['trans'];?></label>
-<?php $bbcodeOptions = array('selector' => 'textarea[name=AbstractInput_wait_message]'); ?>
-<?php include(erLhcoreClassDesign::designtpl('lhbbcode/toolbar.tpl.php')); ?>
-<?php echo erLhcoreClassAbstract::renderInput('wait_message', $fields['wait_message'], $object)?>
+<div role="tabpanel">
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs mb-2" role="tablist">
+        <li role="presentation" class="nav-item"><a class="nav-link active" href="#main-wait-content" aria-controls="main-wait-content" role="tab" data-toggle="tab"><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','Welcome message');?></a></li>
+        <li role="presentation" class="nav-item"><a class="nav-link" href="#main-offline-content" aria-controls="main-offline-content" role="tab" data-toggle="tab"><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','Offline message');?></a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="main-wait-content">
+            <div class="form-group">
+                <label><?php echo $fields['wait_message']['trans'];?></label>
+                <?php $bbcodeOptions = array('selector' => 'textarea[name=AbstractInput_wait_message]'); ?>
+                <?php include(erLhcoreClassDesign::designtpl('lhbbcode/toolbar.tpl.php')); ?>
+                <?php echo erLhcoreClassAbstract::renderInput('wait_message', $fields['wait_message'], $object)?>
+            </div>
+            <p><small><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/proactivechatinvitation','If department is online and visitor starts a chat and is waiting for some to accept chat. This will be initial message he will get.')?></small></p>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="main-offline-content">
+            <div class="form-group">
+                <label><?php echo $fields['offline_message']['trans'];?></label>
+                <?php $bbcodeOptions = array('selector' => 'textarea[name=AbstractInput_offline_message]'); ?>
+                <?php include(erLhcoreClassDesign::designtpl('lhbbcode/toolbar.tpl.php')); ?>
+                <?php echo erLhcoreClassAbstract::renderInput('offline_message', $fields['offline_message'], $object)?>
+                <p><small><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/proactivechatinvitation','If department is offline and visitor starts a chat this message will be send instaed of default welcome message. If this message is empty - welcome message will be send.')?></small></p>
+            </div>
+        </div>
+    </div>
 </div>
+
+    <hr class="border">
 
 <div class="form-group">
 <label><?php echo $fields['operator']['trans'];?></label>
@@ -71,6 +94,7 @@
     		<li role="presentation" class="nav-item"><a class="nav-link" href="#active" aria-controls="active" role="tab" data-toggle="tab"><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','Visitor not replying messaging');?></a></li>
     		<li role="presentation" class="nav-item"><a class="nav-link" href="#operatornotreply" aria-controls="active" role="tab" data-toggle="tab"><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','Operator not replying messaging');?></a></li>
     		<li role="presentation" class="nav-item"><a class="nav-link" href="#onhold" aria-controls="onhold" role="tab" data-toggle="tab"><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','On-hold chat messaging');?></a></li>
+            <li role="presentation" class="nav-item"><a class="nav-link" href="#closeaction" aria-controls="closeaction" role="tab" data-toggle="tab"><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','Close messaging');?></a></li>
     		<li role="presentation" class="nav-item"><a class="nav-link" href="#survey" aria-controls="survey" role="tab" data-toggle="tab"><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','Survey');?></a></li>
             <li ng-repeat="lang in cmsg.languages" class="nav-item" role="presentation"><a class="nav-link" href="#lang-{{$index}}" aria-controls="lang-{{$index}}" role="tab" data-toggle="tab" ><i class="material-icons mr-0">&#xE894;</i></a></li>
             <li class="nav-item"><a class="nav-link" href="#addlanguage" ng-click="cmsg.addLanguage()"><i class="material-icons">&#xE145;</i><?php echo erTranslationClassLhTranslation::getInstance()->getTranslation('abstract/widgettheme','Add translation');?></a></li>
@@ -89,6 +113,9 @@
     		</div>
             <div role="tabpanel" class="tab-pane" id="onhold">
     		  <?php include(erLhcoreClassDesign::designtpl('lhabstract/custom/responder/onhold.tpl.php'));?>
+    		</div>
+            <div role="tabpanel" class="tab-pane" id="closeaction">
+    		  <?php include(erLhcoreClassDesign::designtpl('lhabstract/custom/responder/closeaction.tpl.php'));?>
     		</div>
             <div role="tabpanel" class="tab-pane" id="survey">
     		  <?php include(erLhcoreClassDesign::designtpl('lhabstract/custom/responder/survey.tpl.php'));?>

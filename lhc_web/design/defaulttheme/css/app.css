@@ -146,6 +146,13 @@ a:hover{
     user-select: none;
 }
 
+.user-chatwidget-buttons-start{
+    position:absolute;
+    top: 3px;
+    right: 3px;
+    height: 10px;
+}
+
 .live-chat-message,.live-chat-message:focus{
 	outline: none;
 	-webkit-box-shadow: none !important;
@@ -153,7 +160,6 @@ a:hover{
 	box-shadow: none !important;
 	border-radius: 15px;
 	border: 1px solid #ccc;
-    padding-right: 30px;
     max-height: 60px;
     overflow-y:hidden;
 }
@@ -301,9 +307,11 @@ div.system-response {
 {
     display: none;
 }
+
 .bubble-messages .op-tit {
     float:left;
-    margin-top: 2px;
+    margin-top: 0px;
+    padding: 0;
 }
 
 .bubble-messages .vis-tit {
@@ -334,7 +342,7 @@ div.system-response {
     margin-left:29px;
 }
 
-@media (min-width: 1024px) {
+@media (min-device-width: 1024px) {
     .profile-msg-pic {
         width: 33px;
     }
@@ -511,6 +519,7 @@ div.message-row.response div.msg-body{
 	position: absolute;
 	right: 20px;
 	top: 20px;
+    z-index: 99;
 }
 .hidden-download::after{
 	font-family: 'Material Icons';
@@ -522,6 +531,16 @@ div.message-row.response div.msg-body{
 	padding: 5px;
 	border-radius: 5px;
 }
+
+.audio-download{
+    top:0;
+    right:0;
+}
+
+.audio-download::after{
+    font-size: 16px;
+}
+
 .msg-body-media:hover > img
 {
 	filter: contrast(50%);
@@ -713,13 +732,6 @@ div.message-row.response+div.message-row.response:hover .msg-date,
 
 .admin-chat-mic {
 	background:url(../images/icons/mic.gif) no-repeat center center;
-}
-
-.user-chatwidget-buttons{
-	position:absolute;
-	top: 3px;
-	right: 3px;
-	height: 10px;
 }
 
 .dropdown-toggle-widget,
@@ -1509,6 +1521,30 @@ input[type="file"]{
 	padding: 2px 4px;
 	height: auto;
 }
+
+.fs25{
+    font-size: 25px;
+}
+
+.spinner-pulsating {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity:0;
+    }
+
+    50% {
+        opacity:1;
+    }
+
+    100% {
+        opacity:0;
+    }
+}
+
+
 
 @keyframes lhc-spin {
 	0% {

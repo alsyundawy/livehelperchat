@@ -305,13 +305,13 @@ function lh(){
     	}
     	
     	var contentLi = '<li role="presentation" id="chat-tab-li-'+chat_id+'" class="nav-item"><a class="nav-link" href="#chat-id-'+chat_id+'" id="chat-tab-link-'+chat_id+'" aria-controls="chat-id-'+chat_id+'" role="tab" data-toggle="tab"><i id="msg-send-status-'+chat_id+'" class="material-icons send-status-icon icon-user-online">send</i><i id="user-chat-status-'+chat_id+'" class="'+this.tabIconClass+'">'+this.tabIconContent+'</i><span class="ntab" id="ntab-chat-'+chat_id+'">' + name.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span><span onclick="return lhinst.removeDialogTab('+chat_id+',$(\'#tabs\'),true)" class="material-icons icon-close-chat">close</span></a></li>';
-    	
+
     	if (typeof position === 'undefined' || parseInt(position) == 0) {
     		tabs.find('> ul').append(contentLi);
     	} else {
     		tabs.find('> ul > li:eq('+ (position - 1)+')').after(contentLi);
     	};
-    	
+
     	$('#chat-tab-link-'+chat_id).click(function() {
 
             setTimeout(function() {
@@ -321,7 +321,7 @@ function lh(){
     		var inst = $(this);
     		setTimeout(function(){
     			inst.find('.msg-nm').remove();
-    			inst.removeClass('has-pm');    			
+    			inst.removeClass('has-pm');
     			$('#messagesBlock-'+chat_id).stop(true,false).animate({ scrollTop: $('#messagesBlock-'+chat_id).prop('scrollHeight') }, 500);
     			ee.emitEvent('chatTabClicked', [chat_id, inst]);
 
@@ -333,6 +333,12 @@ function lh(){
     	var inst = this;
 
     	$.get(url, function(data) {
+
+    	    if (data == '') {
+                inst.removeDialogTab(chat_id,tabs,true);
+    	        return;
+            }
+    	    
     		if (typeof focusTab === 'undefined' || focusTab === true || hash == '#chat-id-'+chat_id){
 	    		tabs.find('> ul > li > a.active').removeClass("active");
 	    		tabs.find('> ul > #chat-tab-li-'+chat_id+' > a').addClass("active");
@@ -685,7 +691,20 @@ function lh(){
 	        	jQuery('#CSChatMessage').val(sessionStorage.getItem('lhc_ttxt'));       
 	    	}
         } catch(e) {}
-        
+
+        var hasMic = false;
+
+        if (jQuery('#CSChatMessage').val() != '') {
+            $('#lhc-send-icon').show();
+            $('#lhc-mic-icon').hide();
+        } else {
+            if ($('#lhc-mic-icon').length > 0){
+                $('#lhc-send-icon').hide();
+                $('#lhc-mic-icon').show();
+                hasMic = true;
+            }
+        }
+
         jQuery('#CSChatMessage').bind('keyup', function (evt){
         	
         	 if (sessionStorage) {
@@ -695,6 +714,17 @@ function lh(){
          	 };
             var element = $(this)[0];
             element.style.height = "5px";
+
+            if (hasMic == true) {
+                if ($(this).val() != '') {
+                    $('#lhc-send-icon').show();
+                    $('#lhc-mic-icon').hide();
+                    $('#voice-control-message').hide();
+                } else {
+                    $('#lhc-send-icon').hide();
+                    $('#lhc-mic-icon').show();
+                }
+            }
 
             var heightScroll = ((element.scrollHeight)+3);
 
@@ -2633,6 +2663,12 @@ function lh(){
         textArea.val('');
 		var inst = this;
 
+		if ($('#lhc-mic-icon').length > 0){
+		    $('#lhc-send-icon').hide();
+		    $('#lhc-mic-icon').show();
+		    $('#voice-control-message').hide();
+        }
+
 		if (sessionStorage) {
 			try {
 				sessionStorage.setItem('lhc_ttxt','');
@@ -2998,6 +3034,13 @@ function lh(){
     this.addCaptchaSubmit = function(timestamp,inst) {
         if (inst.find('.form-protected').length == 0) {
             inst.find('input[type="submit"]').attr('disabled','disabled');
+            inst.find('#ChatSendButtonContainer').remove();
+            inst.find('#id_Question').attr('readonly','readonly');
+
+            if (typeof formSubmitted !== 'undefined') {
+                formSubmitted = true;
+            }
+
             $.getJSON(this.wwwDir + 'captcha/captchastring/form/'+timestamp, function(data) {
                 inst.append('<input type="hidden" value="'+timestamp+'" name="captcha_'+data.result+'" /><input type="hidden" value="'+timestamp+'" name="tscaptcha" /><input type="hidden" class="form-protected" value="1" />');
 

@@ -77,12 +77,12 @@ class erLhcoreClassRestAPIHandler
         return false;
     }
 
-    public static function setHeaders()
+    public static function setHeaders($content = 'Content-Type: application/json')
     {
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, API-Key, Authorization');
-        header('Content-Type: application/json');
+        header($content);
         self::setOptionHeaders();
     }
 
@@ -95,6 +95,8 @@ class erLhcoreClassRestAPIHandler
 
             if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
                 header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+            header("Access-Control-Max-Age: 1728000");
 
             exit(0);
         }
@@ -132,17 +134,34 @@ class erLhcoreClassRestAPIHandler
                 ));
             }
 
-            if (! ($apiKey instanceof erLhAbstractModelRestAPIKey)) {
+            $authorised = false;
+            $user = null;
+
+            if (!($apiKey instanceof erLhAbstractModelRestAPIKey)) {
+                $user = erLhcoreClassModelUser::findOne(array('filter' => array('username' => $apiData[0])));
+                if (!($user instanceof erLhcoreClassModelUser) || !password_verify($apiData[1], $user->password)) {
+                    throw new Exception(erTranslationClassLhTranslation::getInstance()->getTranslation('lhrestapi/validation', 'Authorization failed!'));
+                } else {
+                    if (!$user->hasAccessTo('lhrestapi','use_direct_logins')){
+                        throw new Exception(htmlspecialchars_decode(erTranslationClassLhTranslation::getInstance()->getTranslation('lhrestapi/validation', 'You do not have permission to use REST API directly. "lhrestapi", "use_direct_logins" is missing!')));
+                    } else {
+                        $authorised = true;
+                    }
+                }
+            }
+
+            if ($authorised === false && $apiKey->user->username != $apiData[0]) {
                 throw new Exception(erTranslationClassLhTranslation::getInstance()->getTranslation('lhrestapi/validation', 'Authorization failed!'));
             }
-            
-            if ($apiKey->user->username != $apiData[0]) {
-                throw new Exception(erTranslationClassLhTranslation::getInstance()->getTranslation('lhrestapi/validation', 'Authorization failed!'));
+
+            if ($user instanceof erLhcoreClassModelUser){
+                self::$apiKey = new erLhAbstractModelRestAPIKey();
+                self::$apiKey->user = $user;
+            } else {
+                // API Key
+                self::$apiKey = $apiKey;
             }
-            
-            // API Key
-            self::$apiKey = $apiKey;
-            
+
             if (isset($_GET['update_activity'])) {
                 erLhcoreClassUserDep::updateLastActivityByUser(self::$apiKey->user->id, time());
             }
@@ -150,6 +169,8 @@ class erLhcoreClassRestAPIHandler
         } else {
             throw new Exception(erTranslationClassLhTranslation::getInstance()->getTranslation('lhrestapi/validation', 'Authorization header is missing!'));
         }
+
+        return true;
     }
 
     public static function formatFilter($validAttributes)
@@ -359,8 +380,6 @@ class erLhcoreClassRestAPIHandler
             ));
         }
 
-
-
         // Chats list
         return array(
             'list' => array_values($campaignsConversions),
@@ -369,10 +388,7 @@ class erLhcoreClassRestAPIHandler
         );
     }
 
-    /**
-     * Chat's list
-     */
-    public static function validateChatList()
+    public static function getChatListFilter()
     {
         $validAttributes = array(
             'int' => array(
@@ -389,6 +405,21 @@ class erLhcoreClassRestAPIHandler
                     'validator' => new ezcInputFormDefinitionElement(ezcInputFormDefinitionElement::OPTIONAL, 'int', array(
                         'min_range' => 1
                     ))
+                ),
+                'phone' => array(
+                    'type' => 'filter',
+                    'field' => 'phone',
+                    'validator' => new ezcInputFormDefinitionElement(ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw')
+                ),
+                'email' => array(
+                    'type' => 'filter',
+                    'field' => 'email',
+                    'validator' => new ezcInputFormDefinitionElement(ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw')
+                ),
+                'nick' => array(
+                    'type' => 'filter',
+                    'field' => 'nick',
+                    'validator' => new ezcInputFormDefinitionElement(ezcInputFormDefinitionElement::OPTIONAL, 'unsafe_raw')
                 ),
                 'status' => array(
                     'type' => 'filter',
@@ -413,21 +444,75 @@ class erLhcoreClassRestAPIHandler
                 )
             )
         );
-        
-        $filterlt = array('id');
-        
+
         $filter = self::formatFilter($validAttributes);
-        
-        if (isset($_GET['filtergt']['id']) && is_numeric($_GET['filtergt']['id'])){
+
+        if (isset($_GET['filtergt']['id']) && is_numeric($_GET['filtergt']['id'])) {
             $filter['filtergt']['id'] = (int)$_GET['filtergt']['id'];
+        }
+
+        if (isset($_GET['departament_ids'])) {
+            $idDep = explode(',',$_GET['departament_ids']);
+            erLhcoreClassChat::validateFilterIn($idDep);
+            if (!empty($idDep)){
+                $filter['filterin']['dep_id'] = $idDep;
+            }
+        }
+
+        if (isset($_GET['departament_groups_ids'])) {
+            $idDep = explode(',',$_GET['departament_groups_ids']);
+            erLhcoreClassChat::validateFilterIn($idDep);
+            if (!empty($idDep)){
+                $groups = erLhcoreClassModelDepartamentGroup::getList(array('filterin' => array('id' => $idDep)));
+                foreach ($groups as $group) {
+                    $depIds = $group->departments_ids;
+                    if (!empty($depIds)) {
+                        if (isset($filter['filterin']['dep_id'])) {
+                            $filter['filterin']['dep_id'] = array_merge($filter['filterin']['dep_id'], $depIds);
+                        } else {
+                            $filter['filterin']['dep_id'] = $depIds;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (isset($_GET['id_gt']) && is_numeric($_GET['id_gt'])) {
+            $filter['filtergt']['id'] = (int)$_GET['id_gt'];
+        }
+
+        if (isset($_GET['time_gt']) && is_numeric($_GET['time_gt'])) {
+            $filter['filtergt']['time'] = (int)$_GET['time_gt'];
         }
 
         if (isset($_GET['delay']) && is_numeric($_GET['delay'])) {
             $filter['filterlte']['time'] = time()-(int)$_GET['delay'];
         }
-        
+
+        if (isset($_GET['last_user_msg_time_gt']) && is_numeric($_GET['last_user_msg_time_gt'])) {
+            $filter['filtergt']['last_user_msg_time'] = (int)$_GET['last_user_msg_time_gt'];
+        }
+
+        $groupFields = array();
+
+        if (isset($_GET['group_by_nick']) && $_GET['group_by_nick'] == 'true') {
+            $groupFields[] = '`nick`';
+        }
+
+        if (isset($_GET['group_by_phone']) && $_GET['group_by_phone'] == 'true') {
+            $groupFields[] = '`phone`';
+        }
+
+        if (isset($_GET['group_by_email']) && $_GET['group_by_email'] == 'true') {
+            $groupFields[] = '`email`';
+        }
+
+        if (!empty($groupFields)) {
+            $filter['group'] = implode(', ', $groupFields);
+        }
+
         $limitation = self::getLimitation();
-        
+
         // Does not have any assigned department
         if ($limitation === false) {
             return array(
@@ -439,17 +524,47 @@ class erLhcoreClassRestAPIHandler
         if ($limitation !== true) {
             $filter['customfilter'][] = $limitation;
         }
+
+        erLhcoreClassChatEventDispatcher::getInstance()->dispatch('restapi.chats_filter', array('filter' => & $filter));
+
+        return $filter;
+    }
+
+    public static function validateChatListCount()
+    {
+        $filter = self::getChatListFilter();
+
+        if (isset($filter['limit'])) {
+            unset($filter['limit']);
+        }
+
+        // Get chats count
+        $chatsCount = erLhcoreClassModelChat::getCount($filter);
+
+        // Chats list
+        return array(
+            'list_count' => $chatsCount,
+            'error' => false
+        );
+    }
+    /**
+     * Chat's list
+     */
+    public static function validateChatList()
+    {
+
+        $filter = self::getChatListFilter();
         
         // Get chats list
-        $chats = erLhcoreClassChat::getList($filter);
+        $chats = erLhcoreClassModelChat::getList($filter);
         
         // Get chats count
-        $chatsCount = erLhcoreClassChat::getCount($filter);
+        $chatsCount = erLhcoreClassModelChat::getCount($filter);
 
         // Allow extensions append custom field
         erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.restapi_chats',array('list' => & $chats));
 
-        if (isset($_GET['include_messages']) && $_GET['include_messages'] == 'true') {
+        if (isset($_GET['include_messages']) && $_GET['include_messages'] == 'true' && !empty($chats)) {
             $messages = erLhcoreClassModelmsg::getList(array('limit' => 100000,'sort' => 'id ASC','filterin' => array('chat_id' => array_keys($chats))));
             foreach ($messages as $message) {
                 if (!is_array($chats[$message->chat_id]->messages)) {
@@ -457,6 +572,44 @@ class erLhcoreClassRestAPIHandler
                 }
                 $chats[$message->chat_id]->messages[] = $message;
             }
+        }
+
+        $prefillFields = array();
+
+        if (isset($_GET['prefill_fields'])){
+            $prefillFields = explode(',',str_replace(' ','',$_GET['prefill_fields']));
+        }
+
+        $ignoreFields = array();
+        if (isset($_GET['ignore_fields'])){
+            $ignoreFields = explode(',',str_replace(' ','',$_GET['ignore_fields']));
+        }
+
+        // Option to have department_groups attribute listed in response
+        if (isset($_GET['department_groups']) && $_GET['department_groups'] == 'true') {
+            $departments = array();
+            foreach ($chats as $chat) {
+                $departments[] = $chat->dep_id;
+            }
+
+            $departments = array_unique($departments);
+
+            $depMembersItems = array();
+
+            if (!empty($departments)) {
+                $depMembers = erLhcoreClassModelDepartamentGroupMember::getList(array('filterin' => array('dep_id' => $departments)));
+                foreach ($depMembers as $depMember) {
+                    $depMembersItems[$depMember->dep_id][] = $depMember->dep_group_id;
+                }
+            }
+
+            foreach ($chats as $index => $chat) {
+                $chats[$index]->department_groups = isset($depMembersItems[$chat->dep_id]) ? $depMembersItems[$chat->dep_id] : array();
+            }
+        }
+
+        if (!empty($prefillFields) || !empty($ignoreFields)) {
+            erLhcoreClassChat::prefillGetAttributes($chats, $prefillFields, $ignoreFields, array('clean_ignore' => true, 'do_not_clean' => true));
         }
 
         // Chats list
@@ -670,12 +823,32 @@ class erLhcoreClassRestAPIHandler
            echo self::formatXML(json_decode(json_encode($data),true));
         } else {
         
-            $json = json_encode($data, JSON_PRETTY_PRINT);
+            $json = json_encode($data);
             
             if (isset($_GET['callback'])) {
                 echo $_GET['callback'] . '(' . $json . ')';
             } else {
                 echo $json;
+            }
+        }
+    }
+
+    public static function importMessages($chat, $messages) {
+        foreach ($messages as $message) {
+            $msg = new erLhcoreClassModelmsg();
+            $msg->msg = isset($message['msg']) ? $message['msg'] : '';
+            $msg->meta_msg = isset($message['meta_msg']) ? $message['meta_msg'] : '';
+            $msg->time = isset($message['time']) ? $message['time'] : time();
+            $msg->chat_id = $chat->id;
+            $msg->user_id = isset($message['user_id']) ? $message['user_id'] : 0;
+            $msg->name_support = isset($message['name_support']) ? $message['name_support'] : '';
+            $msg->saveThis();
+
+            $chat->last_msg_id = $msg->id;
+            if ($msg->user_id == 0) {
+                $chat->last_user_msg_time = $msg->time;
+            } elseif ($msg->user_id == -2) {
+                $chat->last_op_msg_time = $msg->time;
             }
         }
     }

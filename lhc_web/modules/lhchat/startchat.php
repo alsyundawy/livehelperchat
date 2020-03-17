@@ -27,6 +27,10 @@ if (isset($Params['user_parameters_unordered']['theme']) && (int)$Params['user_p
 	}
 }
 
+if (isset($theme) && $theme instanceof erLhAbstractModelWidgetTheme && isset($theme->bot_configuration_array['detect_language']) && $theme->bot_configuration_array['detect_language'] == true) {
+    erLhcoreClassChatValidator::setLanguageByBrowser();
+}
+
 // er
 if (isset($Params['user_parameters_unordered']['er']) && (int)$Params['user_parameters_unordered']['er'] == 1) {
     $Result['er'] = true;
@@ -251,7 +255,7 @@ if (isset($_POST['StartChat']) && $disabled_department === false) {
     {
         $chat->lsync = time();
    		$chat->setIP();
-   		erLhcoreClassModelChat::detectLocation($chat);
+   		erLhcoreClassModelChat::detectLocation($chat, (string)$Params['user_parameters_unordered']['vid']);
    		
    		$statusGeoAdjustment = erLhcoreClassChat::getAdjustment(erLhcoreClassModelChatConfig::fetch('geoadjustment_data')->data_value, $inputData->vid);
    		
@@ -289,7 +293,7 @@ if (isset($_POST['StartChat']) && $disabled_department === false) {
 	   		$tpl->set('request_send',true);
 	   	} else {
 	       $chat->time = $chat->pnd_time = time();
-	       $chat->status = 0;
+	       $chat->status = erLhcoreClassModelChat::STATUS_PENDING_CHAT;
 
 	       $chat->hash = erLhcoreClassChat::generateHash();
 	       $chat->referrer = isset($_POST['URLRefer']) ? $_POST['URLRefer'] : '';
@@ -383,20 +387,33 @@ if (isset($_POST['StartChat']) && $disabled_department === false) {
 
     				    erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.before_auto_responder_message', array('chat' => & $chat, 'responder' => & $responder));
 
-    					if ($responder->wait_message != '' && $chat->status !== erLhcoreClassModelChat::STATUS_BOT_CHAT) {
-    						$msg = new erLhcoreClassModelmsg();
-    						$msg->msg = trim($responder->wait_message);
-    						$msg->chat_id = $chat->id;
-    						$msg->name_support = $responder->operator != '' ? $responder->operator : erTranslationClassLhTranslation::getInstance()->getTranslation('chat/startchat','Live Support');
-    						$msg->user_id = -2;
-    						$msg->time = time() + 5;
-    						erLhcoreClassChat::getSession()->save($msg);
+                        if ($chat->status !== erLhcoreClassModelChat::STATUS_BOT_CHAT) {
+                            $messageText = '';
 
-    						if ($chat->last_msg_id < $msg->id) {
-    							$chat->last_msg_id = $msg->id;
-    						}
-    					}
+                            if ($responder->offline_message != '' && !erLhcoreClassChat::isOnline($chat->dep_id, false, array(
+                                    'online_timeout' => (int) erLhcoreClassModelChatConfig::fetch('sync_sound_settings')->data['online_timeout'],
+                                    'ignore_user_status' => false
+                                ))) {
+                                $messageText = $responder->offline_message;
+                            } else {
+                                $messageText = $responder->wait_message;
+                            }
 
+                            if ($messageText != '') {
+                                $msg = new erLhcoreClassModelmsg();
+                                $msg->msg = trim($messageText);
+                                $msg->meta_msg = $responder->getMeta($chat, 'pending');
+                                $msg->chat_id = $chat->id;
+                                $msg->name_support = $responder->operator != '' ? $responder->operator : erTranslationClassLhTranslation::getInstance()->getTranslation('chat/startchat','Live Support');
+                                $msg->user_id = -2;
+                                $msg->time = time() + 5;
+                                erLhcoreClassChat::getSession()->save($msg);
+
+                                if ($chat->last_msg_id < $msg->id) {
+                                    $chat->last_msg_id = $msg->id;
+                                }
+                            }
+                        }
 
     					erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.auto_responder_triggered', array('chat' => & $chat));
 

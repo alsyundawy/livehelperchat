@@ -38,7 +38,7 @@ class erLhcoreClassGenericBotActionCommand {
                 // We do not have to set this
                 // Because it triggers auto responder of not replying
                 // $chat->last_op_msg_time = time();
-                $chat->saveThis();
+                $chat->updateThis();
 
                 $handler = erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.genericbot_chat_command_transfer', array(
                     'action' => $action,
@@ -64,7 +64,7 @@ class erLhcoreClassGenericBotActionCommand {
         } elseif ($action['content']['command'] == 'transfertobot') {
             $chat->status = erLhcoreClassModelChat::STATUS_BOT_CHAT;
             $chat->last_op_msg_time = time();
-            $chat->saveThis();
+            $chat->updateThis();
 
             if (isset($action['content']['payload']) && is_numeric($action['content']['payload'])) {
 
@@ -123,6 +123,24 @@ class erLhcoreClassGenericBotActionCommand {
 
                 if ($eventArgs['attr'] == 'dep_id' && $eventArgs['old'] != $action['content']['payload_arg']) {
                     erLhAbstractModelAutoResponder::updateAutoResponder($chat);
+
+                    $department = erLhcoreClassModelDepartament::fetch($chat->dep_id);
+
+                    if ($department instanceof erLhcoreClassModelDepartament) {
+                        if ($department->department_transfer_id > 0) {
+                            $chat->transfer_if_na = 1;
+                            $chat->transfer_timeout_ts = time();
+                            $chat->transfer_timeout_ac = $department->transfer_timeout;
+                        }
+
+                        if ($department->inform_unread == 1) {
+                            $chat->reinform_timeout = $department->inform_unread_delay;
+                        }
+
+                        if ($department->priority > $chat->priority) {
+                            $chat->priority = $department->priority;
+                        }
+                    }
                 }
 
                 if ($eventArgs['attr'] == 'status' && $eventArgs['old'] != $action['content']['payload_arg']) {
@@ -136,14 +154,10 @@ class erLhcoreClassGenericBotActionCommand {
                 $chat->saveThis();
 
         } elseif ($action['content']['command'] == 'dispatchevent') {
-
                 erLhcoreClassChatEventDispatcher::getInstance()->dispatch('chat.genericbot_chat_command_dispatch_event', array(
                     'action' => $action,
                     'chat' => & $chat,
                 ));
-
-                $chat->saveThis();
-
         }
     }
 }

@@ -344,6 +344,11 @@ $ViewList['syncuser'] = array(
 	'uparams' => array('mode','ot','theme','modeembed')
 );
 
+$ViewList['transfertohuman'] = array(
+    'params' => array('chat_id','hash'),
+	'uparams' => array()
+);
+
 $ViewList['editnick'] = array(
     'params' => array('chat_id','hash'),
 	'uparams' => array()
@@ -403,6 +408,12 @@ $ViewList['startchat'] = array (
     'params' => array(),
     'uparams' => array('ua','switchform','operator','theme','er','vid','hash_resume','sound','hash','offline','leaveamessage','department','priority','chatprefill','survey','prod','phash','pvhash','ajaxmode'),
 	'multiple_arguments' => array ( 'department', 'ua', 'prod' )
+);
+
+$ViewList['start'] = array (
+    'params' => array(),
+    'uparams' => array('id','hash','department','theme','mobile','vid','identifier','inv'),
+	'multiple_arguments' => array('department')
 );
 
 $ViewList['chatwidget'] = array (
@@ -552,6 +563,10 @@ $ViewList['accept'] = array(
     'params' => array('hash','validation_hash','email')
 );
 
+$ViewList['confirmleave'] = array(
+    'params' => array('chat_id','hash')
+);
+
 $ViewList['sendchat'] = array(
 		'params' => array('chat_id','hash')
 );
@@ -602,6 +617,7 @@ $FunctionList['administratecolumn'] = array('explain' => 'Allow operator to conf
 $FunctionList['administratechatvariable'] = array('explain' => 'Allow operator to configure chat custom variables');
 $FunctionList['administratechatpriority'] = array('explain' => 'Allow operator to configure chat priority by custom variables');
 $FunctionList['administratesyncsound'] = array('explain' => 'Allow operator to configure chat sound and sync settings');
+$FunctionList['voicemessages'] = array('explain' => 'Allow operator to send voice messages');
 
 
 ?>

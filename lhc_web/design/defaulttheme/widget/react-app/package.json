@@ -13,7 +13,7 @@
     "start": "webpack-dev-server --hot --mode development"
   },
   "dependencies": {
-    "axios": "^1.8.2",
+    "axios": "^1.13.5",
     "bootstrap.native": "^4.2.0",
     "core-js": "^3.20.2",
     "custom-event-polyfill": "^1.0.7",
@@ -37,7 +37,7 @@
     "@babel/preset-react": "^7.16.7",
     "babel-loader": "^8.2.3",
     "babel-plugin-module-resolver": "^3.2.0",
-    "immutable": "^4.0.0",
+    "immutable": "^4.3.8",
     "react-app-polyfill": "^1.0.6",
     "react-redux": "^7.2.6",
     "redux": "^4.1.2",
@@ -45,7 +45,7 @@
     "redux-promise-middleware": "^6.1.2",
     "redux-thunk": "^2.4.1",
     "vmsg": "^0.3.6",
-    "webpack": "^5.65.0",
+    "webpack": "^5.105.4",
     "webpack-cli": "^4.9.1",
     "xwiper": "^2.2.1"
   }

@@ -20,7 +20,7 @@
     "@babel/preset-env": "^7.28.5",
     "@babel/preset-react": "^7.28.5",
     "@tinymce/tinymce-react": "^6.3.0",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "babel-loader": "^10.0.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "bootstrap.native": "^5.1.6",
@@ -35,7 +35,7 @@
     "react-dom": "^19.2.3",
     "react-i18next": "^16.5.0",
     "socketcluster-client": "^20.0.1",
-    "webpack": "^5.104.0",
+    "webpack": "^5.105.4",
     "webpack-cli": "^6.0.1",
     "wolfy87-eventemitter": "^5.2.9",
     "xwiper": "^2.2.1"
